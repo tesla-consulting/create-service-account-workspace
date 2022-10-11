@@ -44,49 +44,21 @@ VERSION = "2"
 
 # GCP project IDs must only contain lowercase letters, digits, or hyphens.
 # Projct IDs must start with a letter. Spaces or punctuation are not allowed.
-TOOL_NAME = "GWM"
-TOOL_NAME_FRIENDLY = "Google Workspace Migrate"
+TOOL_NAME = "CSCR-TESLA-LOG"
+TOOL_NAME_FRIENDLY = "Google Workspace SIEM Integration Tesla"
 TOOL_HELP_CENTER_URL = "https://support.google.com/workspacemigrate/answer/10839762"
 # List of APIs to enable and verify.
 APIS = [
     # If admin.googleapis.com is to be included, then it must be the first in
     # this list.
     "admin.googleapis.com",
-    "contacts.googleapis.com",
-    "migrate.googleapis.com",
-    "gmail.googleapis.com",
-    "calendar-json.googleapis.com",
-    "drive.googleapis.com",
-    "groupsmigration.googleapis.com",
-    "groupssettings.googleapis.com",
-    "sheets.googleapis.com",
-    "tasks.googleapis.com"
 ]
 # List of scopes required for service account.
 SCOPES = [
-    "https://apps-apis.google.com/a/feeds/emailsettings/2.0/",
-    "https://www.googleapis.com/auth/contacts",
-    "https://www.googleapis.com/auth/admin.directory.group",
-    "https://www.googleapis.com/auth/admin.directory.group.member",
-    "https://www.googleapis.com/auth/admin.directory.orgunit",
-    "https://www.googleapis.com/auth/admin.directory.resource.calendar",
-    "https://www.googleapis.com/auth/admin.directory.user",
-    "https://www.googleapis.com/auth/apps.groups.migration",
-    "https://www.googleapis.com/auth/apps.groups.settings",
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/drive.appdata",
-    "https://www.googleapis.com/auth/drive.file",
-    "https://www.googleapis.com/auth/gmail.modify",
-    "https://www.googleapis.com/auth/migrate.deployment.interop",
-    "https://www.googleapis.com/auth/tasks",
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://sites.google.com/feeds",
-    "https://www.googleapis.com/auth/gmail.settings.basic",
-    "https://www.googleapis.com/auth/gmail.settings.sharing",
-    "https://www.googleapis.com/auth/admin.directory.customer.readonly",
-    "https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly"
+    "https://www.googleapis.com/auth/admin.reports.audit.readonly"
 ]
+
+
 DWD_URL_FORMAT = ("https://admin.google.com/ac/owl/domainwidedelegation?"
                   "overwriteClientId=true&clientIdToAdd={}&clientScopeToAdd={}")
 USER_AGENT = f"{TOOL_NAME}_create_service_account_v{VERSION}"
@@ -103,8 +75,7 @@ ZWSP = "\u200b"
 async def create_project():
   logging.info("Creating project...")
   project_id = f"{TOOL_NAME.lower()}-{int(time.time() * 1000)}"
-  project_name = (f"{TOOL_NAME}-"
-                  f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}")
+  project_name = (f"{TOOL_NAME}")
   await retryable_command(f"gcloud projects create {project_id} "
                           f"--name {project_name} --set-as-default")
   logging.info("%s successfully created \u2705", project_id)
@@ -163,7 +134,7 @@ async def create_service_account():
 
 
 async def create_service_account_key():
-  logging.info("Creating service acount key...")
+  logging.info("Creating service account key...")
   service_account_email = await get_service_account_email()
   await retryable_command(f"gcloud iam service-accounts keys create {KEY_FILE} "
                           f"--iam-account={service_account_email}")
